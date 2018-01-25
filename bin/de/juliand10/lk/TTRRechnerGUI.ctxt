@@ -1,0 +1,9 @@
+#BlueJ class context
+comment0.target=TTRRechnerGUI
+comment1.params=
+comment1.target=TTRRechnerGUI()
+comment2.params=ae
+comment2.target=void\ actionPerformed(java.awt.event.ActionEvent)
+comment3.params=
+comment3.target=void\ start()
+numComments=4

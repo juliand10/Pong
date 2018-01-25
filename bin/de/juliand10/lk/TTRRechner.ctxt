@@ -1,0 +1,9 @@
+#BlueJ class context
+comment0.target=TTRRechner
+comment1.params=
+comment1.target=TTRRechner()
+comment2.params=spielwert1\ spielwert2\ sieg\ aenderungskonstante
+comment2.target=int\ rechnen(int,\ int,\ boolean,\ double)
+comment3.params=spielwert1\ spielwert2\ sieg\ m1Jn\ u30S\ u16\ u21
+comment3.target=int\ rechnen(int,\ int,\ boolean,\ boolean,\ boolean,\ boolean,\ boolean)
+numComments=4

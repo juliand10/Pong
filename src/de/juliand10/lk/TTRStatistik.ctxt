@@ -1,0 +1,15 @@
+#BlueJ class context
+comment0.target=TTRStatistik
+comment1.params=
+comment1.target=TTRStatistik()
+comment2.params=
+comment2.target=void\ leeren()
+comment3.params=spielwert1\ spielwert2\ sieg
+comment3.target=int\ rechnen(int,\ int,\ boolean)
+comment4.params=
+comment4.target=void\ ausgebenSaison()
+comment5.params=
+comment5.target=void\ ausgebenSieger()
+comment6.params=
+comment6.target=void\ spielen()
+numComments=7
