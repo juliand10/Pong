@@ -11,21 +11,25 @@ import java.util.TimerTask;
 import javax.swing.JFrame;
 
 public class PongGUI extends JFrame implements KeyListener {
-	private int DELAY = 20;
-	private int MAX_STONES = 500;
+	private int DELAY = 2;
+	private int MAX_STONES = 10;
 	private int courtWidth = 600;
 	private int courtHeight = 400;
 	private Point courtLU = new Point(50, 50);
 	private Point courtRU = new Point(courtLU.x + courtWidth - 1, courtLU.y);
 	private Point courtLL = new Point(courtLU.x, courtLU.y + courtHeight - 1);
 	private Point courtRL = new Point(courtLU.x + courtWidth - 1, courtLU.y + courtHeight - 1);
-	private Point posBall = new Point((courtLU.x + courtWidth) / 2, (courtLU.y + courtHeight) / 2);
+	private int paddleHeight = courtHeight / 5;
+	private Point paddleL = new Point(courtLU.x + courtWidth / 10, courtLU.y + courtHeight / 2);
+	private Point paddleR = new Point(courtRU.x - courtWidth / 10, courtLU.y + courtHeight / 2);
+	private Point posBall = new Point(courtLU.x + courtWidth / 2, courtLU.y + courtHeight / 2);
 	private boolean[][] stones = new boolean[courtWidth - 2][courtHeight - 2];
 	private Point urposBall = new Point(posBall);
 	private Color colorBackground = Color.black;
 	private Color colorCourt = Color.red;
 	private Color colorBall = Color.white;
-	private Color colorStone = Color.white;
+	private Color colorStone = Color.green;
+	private Color colorPaddle = Color.blue;
 	private int deltaX = 1;
 	private int deltaY = 1;
 	boolean initialized = false;
@@ -80,6 +84,12 @@ public class PongGUI extends JFrame implements KeyListener {
 		}
 	}
 
+	private void drawPaddles(Graphics g) {
+		g.setColor(colorPaddle);
+		g.drawRect(paddleL.x, paddleL.y - paddleHeight / 2, 1, paddleHeight);
+		g.drawRect(paddleR.x, paddleR.y - paddleHeight / 2, 1, paddleHeight);
+	}
+
 	private boolean checkCollisionBorder() {
 		boolean collision = false;
 		// collision lower line
@@ -130,19 +140,44 @@ public class PongGUI extends JFrame implements KeyListener {
 			posBall.y += deltaY;
 		}
 		return collision;
-	}	
-	
+	}
+
+	private boolean checkCollisionPaddles() {
+		boolean collision = false;
+		// check left paddle
+		if (posBall.x <= paddleL.x && posBall.y >= paddleL.y - paddleHeight / 2
+				&& posBall.y <= paddleL.y + paddleHeight / 2) {
+			deltaX *= -1;
+			deltaY *= 1;
+			collision = true;
+		}
+		// check right paddle
+		if (posBall.x >= paddleR.x && posBall.y >= paddleR.y - paddleHeight / 2
+				&& posBall.y <= paddleR.y + paddleHeight / 2) {
+			deltaX *= -1;
+			deltaY *= 1;
+			collision = true;
+		}
+		if (collision) {
+			posBall.x = urposBall.x;
+			posBall.y = urposBall.y;
+			posBall.x += deltaX;
+			posBall.y += deltaY;
+		}
+		return collision;
+	}
+
 	public void paint(Graphics g) {
 		if (!initialized) {
 			initCourt(g);
 			initStones(g);
+			drawPaddles(g);
 			initialized = true;
 		}
 		drawBall(g);
-		if (!checkCollisionBorder()) {
-			checkCollisionStones();
-		}
-	
+		checkCollisionBorder();
+		checkCollisionStones();
+		checkCollisionPaddles();
 	}
 
 	public void keyPressed(KeyEvent e) {
@@ -158,6 +193,9 @@ public class PongGUI extends JFrame implements KeyListener {
 		if (key == KeyEvent.VK_E) {
 			deltaX = 2;
 			deltaY = 1;
+		}
+		if (key == KeyEvent.VK_SPACE) {
+			startTimer();
 		}
 	}
 
@@ -182,7 +220,6 @@ public class PongGUI extends JFrame implements KeyListener {
 		pong.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		pong.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		pong.setVisible(true);
-		pong.startTimer();
 	}
 
 	public static void main(String[] args) {
