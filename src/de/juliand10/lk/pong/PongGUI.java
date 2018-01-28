@@ -12,7 +12,7 @@ import java.util.TimerTask;
 import javax.swing.JFrame;
 
 public class PongGUI extends JFrame implements KeyListener {
-	private long DELAY = 50;
+	private long DELAY = 5;
 	private int MAX_STONES = 10;
 	private int courtWidth = 600;
 	private int courtHeight = 400;
@@ -34,10 +34,12 @@ public class PongGUI extends JFrame implements KeyListener {
 	private int deltaX = 1;
 	private int deltaY = 1;
 	boolean initialized = false;
+	Graphics graphics = null;
 
 	public PongGUI() {
 		super("PONG");
 		addKeyListener(this);
+		setVisible(true);
 	}
 
 	private void initCourt(Graphics g) {
@@ -56,6 +58,11 @@ public class PongGUI extends JFrame implements KeyListener {
 		drawStones(g);
 	}
 
+	private void initBall(Graphics g) {
+		g.setColor(colorBall);
+		g.drawRect(posBall.x, posBall.y, 1, 1);
+	}
+
 	private void drawCourt(Graphics g) {
 		g.setColor(colorCourt);
 		g.drawRect(courtLU.x, courtLU.y, courtWidth, courtHeight);
@@ -63,8 +70,7 @@ public class PongGUI extends JFrame implements KeyListener {
 		g.drawRect(courtLU.x - 2, courtLU.y - 2, courtWidth + 4, courtHeight + 4);
 	}
 
-	private void drawBall() {
-		Graphics g = this.getContentPane().getGraphics();
+	private void drawBall(Graphics g) {
 		g.setColor(colorBall);
 		g.drawRect(posBall.x, posBall.y, 1, 1);
 		g.setColor(colorBackground);
@@ -73,7 +79,6 @@ public class PongGUI extends JFrame implements KeyListener {
 		urposBall.y = posBall.y;
 		posBall.x += deltaX;
 		posBall.y += deltaY;
-		//this.repaint();
 	}
 
 	private void drawStones(Graphics g) {
@@ -171,10 +176,12 @@ public class PongGUI extends JFrame implements KeyListener {
 	}
 
 	public void paint(Graphics g) {
+		graphics = getContentPane().getGraphics();
 		if (!initialized) {
-			initCourt(g);
-			initStones(g);
-			drawPaddles(g);
+			initCourt(graphics);
+			initStones(graphics);
+			drawPaddles(graphics);
+			initBall(graphics);
 			initialized = true;
 		}
 		Toolkit.getDefaultToolkit().sync();
@@ -208,7 +215,7 @@ public class PongGUI extends JFrame implements KeyListener {
 	public void startTimer() {
 		TimerTask task = new TimerTask() {
 			public void run() {
-				drawBall();
+				drawBall(graphics);
 				checkCollisionBorder();
 				checkCollisionStones();
 				checkCollisionPaddles();
