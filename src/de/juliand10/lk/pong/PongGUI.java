@@ -5,13 +5,14 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.Toolkit;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.JFrame;
 
 public class PongGUI extends JFrame implements KeyListener {
-	private int DELAY = 2;
+	private long DELAY = 50;
 	private int MAX_STONES = 10;
 	private int courtWidth = 600;
 	private int courtHeight = 400;
@@ -62,7 +63,8 @@ public class PongGUI extends JFrame implements KeyListener {
 		g.drawRect(courtLU.x - 2, courtLU.y - 2, courtWidth + 4, courtHeight + 4);
 	}
 
-	private void drawBall(Graphics g) {
+	private void drawBall() {
+		Graphics g = this.getContentPane().getGraphics();
 		g.setColor(colorBall);
 		g.drawRect(posBall.x, posBall.y, 1, 1);
 		g.setColor(colorBackground);
@@ -71,6 +73,7 @@ public class PongGUI extends JFrame implements KeyListener {
 		urposBall.y = posBall.y;
 		posBall.x += deltaX;
 		posBall.y += deltaY;
+		//this.repaint();
 	}
 
 	private void drawStones(Graphics g) {
@@ -174,10 +177,7 @@ public class PongGUI extends JFrame implements KeyListener {
 			drawPaddles(g);
 			initialized = true;
 		}
-		drawBall(g);
-		checkCollisionBorder();
-		checkCollisionStones();
-		checkCollisionPaddles();
+		Toolkit.getDefaultToolkit().sync();
 	}
 
 	public void keyPressed(KeyEvent e) {
@@ -208,6 +208,10 @@ public class PongGUI extends JFrame implements KeyListener {
 	public void startTimer() {
 		TimerTask task = new TimerTask() {
 			public void run() {
+				drawBall();
+				checkCollisionBorder();
+				checkCollisionStones();
+				checkCollisionPaddles();
 				repaint();
 			}
 		};
