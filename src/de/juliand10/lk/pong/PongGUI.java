@@ -12,7 +12,7 @@ import java.util.TimerTask;
 import javax.swing.JFrame;
 
 public class PongGUI extends JFrame implements KeyListener {
-	private long DELAY = 1;
+	private long DELAY = 10;
 	private int MAX_STONES = 10;
 	// court
 	private int courtWidth = 600;
@@ -43,6 +43,7 @@ public class PongGUI extends JFrame implements KeyListener {
 	private Color colorPaddle = Color.blue;
 	boolean initialized = false;
 	Graphics graphics = null;
+	Timer timer ;
 
 	public PongGUI() {
 		super("PONG");
@@ -73,7 +74,7 @@ public class PongGUI extends JFrame implements KeyListener {
 
 	private void initBall(Graphics g) {
 		g.setColor(colorBall);
-		g.drawRect(posBall.x, posBall.y, 1, 1);
+		g.drawOval(posBall.x, posBall.y, 5, 5);
 	}
 
 	private void drawCourt(Graphics g) {
@@ -85,9 +86,9 @@ public class PongGUI extends JFrame implements KeyListener {
 
 	private void drawBall(Graphics g) {
 		g.setColor(colorBall);
-		g.drawRect(posBall.x, posBall.y, 1, 1);
+		g.drawOval(posBall.x, posBall.y, 5, 5);
 		g.setColor(colorBackground);
-		g.drawRect(urposBall.x, urposBall.y, 1, 1);
+		g.drawOval(urposBall.x, urposBall.y, 5, 5);
 		urposBall.x = posBall.x;
 		urposBall.y = posBall.y;
 		posBall.x += deltaXBall;
@@ -142,13 +143,21 @@ public class PongGUI extends JFrame implements KeyListener {
 		if (posBall.x <= courtLU.x) {
 			deltaXBall *= -1;
 			deltaYBall *= 1;
-			collision = true;
+			//collision = true;
+			timer.cancel();
+			timer.purge();
+			posBall.x = courtLU.x + courtWidth / 2;
+			posBall.y = courtLU.y + courtHeight / 2;
 		}
 		// collision right line
 		if (posBall.x >= courtRU.x) {
 			deltaXBall *= -1;
 			deltaYBall *= 1;
-			collision = true;
+			timer.cancel();
+			timer.purge();		
+			posBall.x = courtLU.x + courtWidth / 2;
+			posBall.y = courtLU.y + courtHeight / 2;
+			//collision = true;
 		}
 		if (collision) {
 			posBall.x = urposBall.x;
@@ -257,17 +266,15 @@ public class PongGUI extends JFrame implements KeyListener {
 
 			public void run() {
 				drawPaddles(graphics);
-				if (counter % 5 == 0) {
-					drawBall(graphics);
-					checkCollisionBorder();
-					checkCollisionStones();
-					checkCollisionPaddles();
-				}
+				drawBall(graphics);
+				checkCollisionBorder();
+				checkCollisionStones();
+				checkCollisionPaddles();
 				repaint();
 				counter++;
 			}
 		};
-		Timer timer = new Timer();
+		timer = new Timer();
 		timer.schedule(task, 0, DELAY);
 	}
 
