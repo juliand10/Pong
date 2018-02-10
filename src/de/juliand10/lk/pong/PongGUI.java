@@ -8,11 +8,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 public class PongGUI extends JFrame implements KeyListener {
-	private long delay = 10;
+	private float delay = 10;
+	private int BALLSIZE = 15;
 	private int MAX_STONES = 10;
 	// Spielfeldgröße festlegen mit Eckpunkten
 	private int courtWidth = 600;
@@ -71,13 +73,13 @@ public class PongGUI extends JFrame implements KeyListener {
 	// Schläger zeichen
 	private void initPaddles(Graphics g) {
 		g.setColor(colorPaddle);
-		g.fillRect(posPaddle.x, (posPaddle.y - paddleHeight / 2), 1, paddleHeight);
+		g.fillRect(posPaddle.x, (posPaddle.y - paddleHeight / 2), 3, paddleHeight);
 	}
 
 	// Ball zeichnen (nur am Anfang)
 	private void initBall(Graphics g) {
 		g.setColor(colorBall);
-		g.drawOval(posBall.x, posBall.y, 15, 15);
+		g.drawOval(posBall.x, posBall.y, BALLSIZE, BALLSIZE);
 		long direction = Math.round(Math.random());
 		if (direction == 0) {
 			deltaXBall *= 1;
@@ -100,9 +102,9 @@ public class PongGUI extends JFrame implements KeyListener {
 	// Ball zeichnen (bis Collision)
 	private void drawBall(Graphics g) {
 		g.setColor(colorBall);
-		g.drawOval(posBall.x, posBall.y, 15, 15);
+		g.drawOval(posBall.x, posBall.y, BALLSIZE, BALLSIZE);
 		g.setColor(colorBackground);
-		g.drawOval(urposBall.x, urposBall.y, 15, 15);
+		g.drawOval(urposBall.x, urposBall.y, BALLSIZE, BALLSIZE);
 		urposBall.x = posBall.x;
 		urposBall.y = posBall.y;
 		posBall.x += deltaXBall;
@@ -122,7 +124,7 @@ public class PongGUI extends JFrame implements KeyListener {
 	}
 
 	// Schläger zeichnen (bei Bewegung und Collision)
-	private void drawPaddles(Graphics g) {
+	private void drawPaddle(Graphics g) {
 		if (posPaddle.y != urposPaddle.y) {
 			g.setColor(colorBackground);
 			g.fillRect(urposPaddle.x, (urposPaddle.y - paddleHeight / 2), 3, paddleHeight);
@@ -138,7 +140,7 @@ public class PongGUI extends JFrame implements KeyListener {
 		boolean collision = false;
 		// Auf Collision an linker Wand prüfen, Timer stoppen und Game
 		// Over-Meldung rausgeben
-		if ((posBall.x - 4) <= courtLU.x) {
+		if ((posBall.x) <= courtLU.x) {
 			deltaXBall *= -1;
 			deltaYBall *= 1;
 			timer.cancel();
@@ -146,31 +148,25 @@ public class PongGUI extends JFrame implements KeyListener {
 			timerIsOn = false;
 			posBall.x = courtLU.x + courtWidth / 2;
 			posBall.y = courtLU.y + courtHeight / 2;
-			JOptionPane.showMessageDialog(null, "Game Over!");
+			JOptionPane.showMessageDialog(null, "Du hast es bis zu einem Delay von " + delay + " geschafft!");
 		}
 		// Auf Collision an oberer Wand prüfen
-		if ((posBall.y - 4) <= courtLU.y) {
+		if ((posBall.y) <= courtLU.y) {
 			deltaXBall *= 1;
 			deltaYBall *= -1;
 			collision = true;
 		}
 		// Auf Collision an unterer Wand prüfen
-		if ((posBall.y + 4) >= courtLL.y) {
+		if ((posBall.y + BALLSIZE) >= courtLL.y) {
 			deltaXBall *= 1;
 			deltaYBall *= -1;
 			collision = true;
 		}
 		// Auf Collision an rechter Wand prüfen
-		if ((posBall.x + 4) >= courtRU.x) {
+		if ((posBall.x + BALLSIZE) >= courtRU.x) {
 			deltaXBall *= -1;
 			deltaYBall *= 1;
-			delay--;
 			collision = true;
-			timer.cancel();
-			timer.purge();
-			timerIsOn = false;
-			startTimer();
-			timerIsOn = true;
 		}
 		if (collision) {
 			posBall.x = urposBall.x;
@@ -202,11 +198,17 @@ public class PongGUI extends JFrame implements KeyListener {
 	// Auf Collision an Schläger prüfen und wenn ja, Ballrichtung ändern
 	private boolean checkCollisionPaddle() {
 		boolean collision = false;
-		if (posBall.x <= posPaddle.x && posBall.y >= posPaddle.y - paddleHeight / 2
+		if (posBall.x <= (posPaddle.x + 2) && posBall.y >= posPaddle.y - paddleHeight / 2
 				&& posBall.y <= posPaddle.y + paddleHeight / 2) {
 			deltaXBall *= -1;
 			deltaYBall *= 1;
+			delay *= 0.9;
 			collision = true;
+			timer.cancel();
+			timer.purge();
+			timerIsOn = false;
+			startTimer();
+			timerIsOn = true;
 		}
 		if (collision) {
 			posBall.x = urposBall.x;
@@ -217,7 +219,7 @@ public class PongGUI extends JFrame implements KeyListener {
 		return collision;
 	}
 
-	// Erstes Zeichen von Elementen
+	// Erstes Zeichnen von Elementen
 	public void paint(Graphics g) {
 		graphics = getContentPane().getGraphics();
 		if (!initialized) {
@@ -227,6 +229,7 @@ public class PongGUI extends JFrame implements KeyListener {
 			initBall(graphics);
 			initialized = true;
 		}
+		// Synchronisierung fuer Linux
 		Toolkit.getDefaultToolkit().sync();
 	}
 
@@ -267,7 +270,7 @@ public class PongGUI extends JFrame implements KeyListener {
 		TimerTask task = new TimerTask() {
 
 			public void run() {
-				drawPaddles(graphics);
+				drawPaddle(graphics);
 				drawBall(graphics);
 				checkCollisionBorder();
 				checkCollisionStones();
@@ -276,7 +279,7 @@ public class PongGUI extends JFrame implements KeyListener {
 			}
 		};
 		timer = new Timer();
-		timer.scheduleAtFixedRate(task, 0, delay);
+		timer.scheduleAtFixedRate(task, 0, (long) delay);
 	}
 
 	// Fenster anzeigen
