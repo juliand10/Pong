@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
 public class PongGUI extends JFrame implements KeyListener {
 	private float delay = 10;
 	private int BALLSIZE = 15;
-	private int MAX_STONES = 10;
+	private int MAX_STONES = 5;
 	// Spielfeldgröße festlegen mit Eckpunkten
 	private int courtWidth = 600;
 	private int courtHeight = 400;
@@ -63,9 +63,13 @@ public class PongGUI extends JFrame implements KeyListener {
 	private void initStones(Graphics g) {
 		int randomX, randomY;
 		for (int i = 0; i < MAX_STONES; i++) {
-			randomX = (int) (Math.random() * (courtWidth - 2));
-			randomY = (int) (Math.random() * (courtHeight - 2));
-			stones[randomX][randomY] = true;
+			randomX = (int) (Math.random() * (courtWidth - 8 - posPaddle.x)) + posPaddle.x;
+			randomY = (int) (Math.random() * (courtHeight - 8));
+			for (int j = randomX - 3; j < randomX + 4; j++) {
+				for (int k = randomY - 3; k < randomY + 4; k++) {
+					stones[j][k] = true;
+				}
+			}
 		}
 		drawStones(g);
 	}
@@ -116,14 +120,14 @@ public class PongGUI extends JFrame implements KeyListener {
 		g.setColor(colorStone);
 		for (int i = 0; i < (courtWidth - 2); i++) {
 			for (int j = 0; j < (courtHeight - 2); j++) {
-				if (stones[i][j] == true) {
-					g.drawRect(courtLU.x + i + 1, courtLU.y + j + 1, 3, 3);
+				if (stones[i][j]) {
+					g.drawRect(courtLU.x + i + 1, courtLU.y + j + 1, 1, 1);
 				}
 			}
 		}
 	}
 
-	// Schläger zeichnen (bei Bewegung und Collision)
+	// Schläger zeichnen (bei Bewegung)
 	private void drawPaddle(Graphics g) {
 		if (posPaddle.y != urposPaddle.y) {
 			g.setColor(colorBackground);
@@ -198,8 +202,8 @@ public class PongGUI extends JFrame implements KeyListener {
 	// Auf Collision an Schläger prüfen und wenn ja, Ballrichtung ändern
 	private boolean checkCollisionPaddle() {
 		boolean collision = false;
-		if (posBall.x <= (posPaddle.x + 2) && posBall.y >= posPaddle.y - paddleHeight / 2
-				&& posBall.y <= posPaddle.y + paddleHeight / 2) {
+		if (posBall.x <= (posPaddle.x + 2) && posBall.x >= (posPaddle.x - 2)
+				&& posBall.y >= posPaddle.y - paddleHeight / 2 && posBall.y <= posPaddle.y + paddleHeight / 2) {
 			deltaXBall *= -1;
 			deltaYBall *= 1;
 			delay *= 0.9;
