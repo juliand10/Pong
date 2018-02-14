@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
 public class PongGUI extends JFrame implements KeyListener {
 	private float delay = 10;
 	private int BALLSIZE = 15;
-	private int MAX_STONES = 5;
+	private int AMOUNT_STONES = 5;
 	// Spielfeldgröße festlegen mit Eckpunkten
 	private int courtWidth = 600;
 	private int courtHeight = 400;
@@ -62,7 +62,7 @@ public class PongGUI extends JFrame implements KeyListener {
 	// Hindernisse ermitteln
 	private void initStones(Graphics g) {
 		int randomX, randomY;
-		for (int i = 0; i < MAX_STONES; i++) {
+		for (int i = 0; i < AMOUNT_STONES; i++) {
 			randomX = (int) (Math.random() * (courtWidth - 8 - posPaddle.x)) + posPaddle.x;
 			randomY = (int) (Math.random() * (courtHeight - 8));
 			for (int j = randomX - 3; j < randomX + 4; j++) {
@@ -141,6 +141,7 @@ public class PongGUI extends JFrame implements KeyListener {
 
 	// Auf Collision an Wand prüfen
 	private boolean checkCollisionBorder() {
+		float delay100;
 		boolean collision = false;
 		// Auf Collision an linker Wand prüfen, Timer stoppen und Game
 		// Over-Meldung rausgeben
@@ -152,7 +153,9 @@ public class PongGUI extends JFrame implements KeyListener {
 			timerIsOn = false;
 			posBall.x = courtLU.x + courtWidth / 2;
 			posBall.y = courtLU.y + courtHeight / 2;
-			JOptionPane.showMessageDialog(null, "Du hast es bis zu einem Delay von " + delay + " geschafft!");
+			delay100 = Math.round((10 / delay) * 100);
+			JOptionPane.showMessageDialog(null,
+					"Du hast es bis zu einer " + (delay100 / 100) + "-fachen Geschwindigkeit geschafft!");
 		}
 		// Auf Collision an oberer Wand prüfen
 		if ((posBall.y) <= courtLU.y) {
@@ -187,23 +190,24 @@ public class PongGUI extends JFrame implements KeyListener {
 		int stoneX, stoneY;
 		stoneX = posBall.x - courtLU.x - 1;
 		stoneY = posBall.y - courtLU.y - 1;
-		if (stones[stoneX][stoneY]) {
-			collision = true;
-			deltaXBall *= -1;
-			deltaYBall *= -1;
-			posBall.x = urposBall.x;
-			posBall.y = urposBall.y;
-			posBall.x += deltaXBall;
-			posBall.y += deltaYBall;
-		}
+			if (stones[stoneX][stoneY]) {
+				collision = true;
+				deltaXBall *= -1;
+				deltaYBall *= -1;
+				posBall.x = urposBall.x;
+				posBall.y = urposBall.y;
+				posBall.x += deltaXBall;
+				posBall.y += deltaYBall;
+				drawStones(graphics);
+			}
 		return collision;
 	}
 
 	// Auf Collision an Schläger prüfen und wenn ja, Ballrichtung ändern
 	private boolean checkCollisionPaddle() {
 		boolean collision = false;
-		if (posBall.x <= (posPaddle.x + 2) && posBall.x >= (posPaddle.x - 2)
-				&& posBall.y >= posPaddle.y - paddleHeight / 2 && posBall.y <= posPaddle.y + paddleHeight / 2) {
+		if ((posBall.x) == (posPaddle.x + 2) && posBall.y >= posPaddle.y - paddleHeight / 2 - (BALLSIZE / 2)
+				&& posBall.y <= posPaddle.y + paddleHeight / 2 + (BALLSIZE / 2)) {
 			deltaXBall *= -1;
 			deltaYBall *= 1;
 			delay *= 0.9;
